@@ -1,10 +1,15 @@
 const path = require('path');
 const express = require('express');
+const expressHbs = require('express-handlebars');
 
 const app = express();
 
 // assign setting globally
-app.set('view engine', 'pug'); // define which engine we'll use
+app.engine(
+  'hbs',
+  expressHbs({ layoutsDir: 'views/layouts/', defaultLayout: 'main-layout' })
+); // when using an engine that is not built in
+app.set('view engine', 'hbs'); // define which engine we'll use
 app.set('views', 'views'); // define where html files are locationed in the 2nd parameter
 
 const adminRoutes = require('./routes/admin');

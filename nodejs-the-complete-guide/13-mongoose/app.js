@@ -1,11 +1,20 @@
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
+const MONGODB_URI =
+  'mongodb+srv://christinayun:wVPoHoXGhxOfb13K@cluster0.qoxpr.mongodb.net/shop?retryWrites=true&w=majority';
+
 const app = express();
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'sessions',
+});
 
 // SET VIEWS
 app.set('view engine', 'ejs');
@@ -18,8 +27,19 @@ const authRoutes = require('./routes/auth');
 // MIDDLEWARES
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret: 'secretpractice',
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 app.use((req, res, next) => {
-  User.findById('60b3e8620f78275a408ec60f')
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
       next();
@@ -34,10 +54,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    'mongodb+srv://christinayun:wVPoHoXGhxOfb13K@cluster0.qoxpr.mongodb.net/shop?retryWrites=true&w=majority',
-    { useUnifiedTopology: true, useNewUrlParser: true }
-  )
+  .connect(MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => {
     User.findOne().then((user) => {
       if (!user) {

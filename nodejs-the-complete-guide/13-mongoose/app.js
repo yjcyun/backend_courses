@@ -69,4 +69,4 @@ mongoose
   .then(() => {
     app.listen(3000, () => 'Server running on port 3000');
   })
-  .catch((err) => console.log(err));
+  .catch((err) => err);

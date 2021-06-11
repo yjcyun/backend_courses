@@ -1,11 +1,15 @@
+import Head from 'next/head';
+
 import { getFeaturedEvents } from '../dummy-data';
 import EventList from '../components/events/event-list';
 
 function HomePage(props) {
-  const featuredEvents = getFeaturedEvents();
-
   return (
     <div>
+      <Head>
+        <title>NexJs Events</title>
+        <meta name='description' content='Site description' />
+      </Head>
       <EventList items={props.events} />
     </div>
   );
